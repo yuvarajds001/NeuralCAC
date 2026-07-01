@@ -1,6 +1,6 @@
 # =============================================================================
 # SCRIPT 2 — UNIVERSAL NEURALCAC V2 TRAINING + EVALUATION
-# Save as: /home/Yuvaraj/Documents/script2_train_evaluate.py
+# Save as: /home/Yuvaraj/Documents/SHIVIN_PHD_DEEPCAC/main/programs/universalcsc.py
 #
 # RUNS AFTER universalpreprocessing.py
 # WORKS FOR ALL 5 DATASETS — change only DATASET_NAME below
