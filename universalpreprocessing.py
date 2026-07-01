@@ -9,40 +9,13 @@
 #   "incart"   INCART            257 Hz  12-lead  5 classes
 #   "chapman"  Chapman-Shaoxing  500 Hz  12-lead  6 classes
 #
-# ROOT CAUSE OF PREVIOUS FAILURE (now fixed):
-#   wfdb.rdsamp() silently returns all-zeros for PhysioNet Challenge .mat files
-#   → load_wfdb_signal() rejected them (max < 1e-10) → nothing was saved
-#
-# FIXES APPLIED (original):
-#   FIX-1  CRITICAL: New load_ecg_signal() tries 3 strategies in order:
-#                    (a) scipy.io.loadmat → read 'val' matrix → apply gain/offset
-#                    (b) wfdb.rdsamp() for .dat format (PTB-XL, INCART)
-#                    (c) numpy .npy fallback
-#   FIX-2  CRITICAL: Gain/offset applied from .hea header (ADC integers → mV)
-#   FIX-3  HIGH    : CPSC2018 .txt label parser reads line 2 (not last CSV token)
-#   FIX-4  MEDIUM  : Removed hard N_FEATURES assertion → pad/trim instead
-#   FIX-5  MEDIUM  : All-zero check threshold raised (was 1e-10, now 1e-6)
-#   FIX-6  LOW     : Signal shape guard before processing
-#
-# ADDITIONAL FIXES (this version — based on diagnostic output):
-#   FIX-7  CRITICAL: CPSC2018 labels come from Dx: SNOMED codes in .hea file,
-#                    NOT from .txt files. Added full SNOMED map for CPSC2018.
-#   FIX-8  CRITICAL: INCART uses .mat format (not .dat). Header shows
-#                    "I0001.mat 16+24 306000/mV ..." — must use load_mat_signal().
-#                    load_incart() now calls load_ecg_signal() (mat-first) instead
-#                    of load_dat_signal().
-#   FIX-9  HIGH    : INCART SNOMED codes added to text_label_map / snomed_map
-#                    (e.g. 164884008=LBBB, 53741008=CAD/sinus, 251180001=AF).
-#   FIX-10 MEDIUM  : INCART loader switched to use load_wfdb_hea generic path
-#                    so the same mat+snomed pipeline handles it correctly.
-#
 # OUTPUT (identical for every dataset — Script 2 reads without modification):
 #   X_train/val/test.npy    (N, 390) RobustScaled features
 #   y_train/val/test.npy    (N,)     integer class labels 0..K-1
 #   sig_train/val/test.npy  (N,12,1000) cleaned signals at 100 Hz
 #   pid_train/val/test.npy  (N,)     patient ID strings
 #   metadata.csv
-#   dataset_info.json       → read by script2_train_evaluate.py
+#   dataset_info.json       → read by universalcac.py
 # =============================================================================
 
 # ── CHANGE ONLY THESE TWO LINES ──────────────────────────────────────────────
@@ -297,8 +270,6 @@ log.info("=" * 70)
 
 # =============================================================================
 # PART 1 — SIGNAL LOADING
-# FIX-1 FIX-2: Handles both .mat (PhysioNet Challenge) and .dat (PTB-XL)
-# FIX-8: INCART also uses .mat (confirmed by diagnostic output)
 # =============================================================================
 
 def read_hea_header(hea_path: str) -> dict:
