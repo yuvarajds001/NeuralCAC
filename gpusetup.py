@@ -29,7 +29,13 @@
 DATASET_NAME = "cpsc2018" #"cpsc2018", "cpsc2018",  "georgia", "incart", "ptbxl"
 # ─────────────────────────────────────────────────────────────────────────────
 
-import os, sys, json, warnings, random, logging, time
+import os, sys, json, warnings, random, logging, time, io
+
+# --- FIX: force UTF-8 on stdout so log lines with α, β, →, ±, ✓ etc. don't
+# crash on Windows' default cp1252 console codepage ---
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 import numpy as np
 import pandas as pd
 import torch
@@ -139,7 +145,7 @@ logging.basicConfig(
     handlers=[
         logging.StreamHandler(sys.stdout),
         logging.FileHandler(
-            os.path.join(SAVE_PATH, f"{DATASET_NAME}_run.log"), mode="w")])
+            os.path.join(SAVE_PATH, f"{DATASET_NAME}_run.log"), mode="w", encoding="utf-8")])
 log = logging.getLogger(__name__)
 
 log.info("="*70)
