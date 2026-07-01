@@ -2,7 +2,7 @@
 # SCRIPT 2 — UNIVERSAL NEURALCAC V2 TRAINING + EVALUATION
 # Save as: /home/Yuvaraj/Documents/script2_train_evaluate.py
 #
-# RUNS AFTER script1_load_preprocess.py
+# RUNS AFTER universalpreprocessing.py
 # WORKS FOR ALL 5 DATASETS — change only DATASET_NAME below
 #
 # PTB-XL (primary) : full analysis — ablation, stability, statistical tests,
